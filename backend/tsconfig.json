@@ -14,19 +14,19 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "baseUrl": "./src",
-    "noEmit": true,
+    "noEmit": false,
     "incremental": true,
     "paths": {
       "@api/*": ["api/*"],
       "@config/*": ["config/*"],
       "@core/*": ["core/*"],
       "@db/*": ["database/*"],
-      "@utils/*": ["core/utils/*"],
+      "@utils/*": ["utils/*"],
       "@typings/*": ["typings/*"]
     }
   },
-  "include": ["src/**/*", "src/typings/**/*",  "src/typings/mongoose.d.ts"],
-  "exclude": ["node_modules", "dist", "src/utils"],
+  "include": ["src/**/*", "src/typings/**/*"],
+  "exclude": ["node_modules", "dist"],
   "ts-node": {
     "esm": true,
     "transpileOnly": true,
