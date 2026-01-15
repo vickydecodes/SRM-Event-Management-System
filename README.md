@@ -3,7 +3,7 @@
 **Repository:** `vickydecodes/SRM-Event-Management-System`  
 **Tech Stack:** JavaScript (React frontend + Node.js backend) + CSS + TypeScript (partial) + HTML  
 **Activity:** 1 commit (initial boilerplate)
-
+[Full document of the access control among the system → ACCESS.md](./ACCESS.md)
 ---
 
 ## 🧱 What’s Been Pushed (Initial Boilerplate Commit)
