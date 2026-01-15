@@ -1,98 +1,208 @@
-# 👤 User & 🎓 Student Data Design
+# ENTITIES.md — Entity Responsibilities & Lifecycle Rules
 
-This document explains the purpose of each field in the **User** and **Student** entities, clearly distinguishes between **system-generated** and **manually entered** data, and provides design rationale.
+This document defines all **core entities**, their **purpose**, **who can modify them**,  
+and **until when modifications are allowed**.
 
-It serves as a reference for API design, form creation, permission handling, and database schema decisions.
+The goal is to avoid ambiguity, prevent accidental data corruption, and ensure
+long-term maintainability.
 
-## 👤 User Entity
+---
 
-**Purpose**  
-The **User** entity is responsible **only** for authentication, authorization, and access control.  
-It is **domain-agnostic** and should **not** contain academic, event-specific, or profile data.
+## 1. Core Design Rule
 
-### User Fields
+> **Every entity has a point after which it becomes confirmed and immutable.**
 
-| Field          | Why it exists                                      | Provided by              |
-|----------------|----------------------------------------------------|--------------------------|
-| `id`           | Primary identifier used internally across the system | **System-generated**     |
-| `fullName`     | Display name shown in UI, logs, and records        | **Manual** (User / Admin) |
-| `email`        | Primary login credential and official communication channel | **Manual**               |
-| `phone`        | Contact number for alerts, OTP, password recovery  | **Manual**               |
-| `password`     | Authentication secret (stored as hashed)           | **Manual** → hashed by system |
-| `roles[]`      | Array of roles (student, staff, dean, organizer, etc.) supporting multi-role users | **Admin / System**       |
-| `isActive`     | Enables or disables system access                  | **Admin / System**       |
+- Presentation entities remain flexible longer
+- Business-rule entities lock early
+- Approval is the main boundary that freezes data
 
-### Key Rules for User Entity
+---
 
-- A single user **can have multiple roles**.
-- All **authentication data** must live **only** in the User entity.
-- **No** academic, department, course, or event-specific data should be stored here.
-- Other entities (**Student**, **Organizer**, **Staff**, etc.) reference the User via `userId`.
+## 2. Entity Summary
 
-## 🎓 Student Entity
+| Entity | Role |
+|------|-----|
+| StudentApplication | Pre-login verification |
+| User | Authentication identity |
+| Student | Verified academic profile |
+| Event | Event presentation & identity |
+| EventRegistration | Event execution & lifecycle |
 
-**Purpose**  
-The **Student** entity stores academic and profile information required for event participation, institutional workflows, and certificate generation.
+---
 
-**Important:**  
-A **Student** record **exists only if** the related User has the `student` role.
+## 3. StudentApplication
 
-### Student Fields
+### Purpose
+Collects student details **before** system access is granted.
 
-| Field            | Why it exists                                          | Provided by              |
-|------------------|--------------------------------------------------------|--------------------------|
-| `id`             | Primary identifier for the student profile             | **System-generated**     |
-| `userId`         | Foreign key linking to the User entity                 | **System-generated**     |
-| `registerNumber` | Official unique student identifier (e.g., roll number) | **Manual** (Admin / Student) |
-| `department`     | Organizational unit the student belongs to             | **Manual**               |
-| `course`         | Specific program of study (e.g., B.Tech CSE, MBA)      | **Manual**               |
-| `year`           | Current academic year (1–4 or equivalent)              | **Manual**               |
-| `section`        | Class grouping (A, B, C, etc.)                         | **Manual** (if applicable) |
-| `fullName`       | Student’s official name (may mirror User.fullName)     | **Manual**               |
-| `email`          | Academic or preferred contact email                    | **Manual**               |
-| `phone`          | Student contact number                                 | **Manual**               |
-| `isActive`       | Controls whether the student can participate in events | **Admin / System**       |
+### Modifiable By
+- Student (before submission)
+- Admin / HOD (status & remarks)
 
-### ✍️ What Students Should Enter (Manually)
+### Lifecycle & Mutability
 
-When a student creates or updates their profile, they are responsible for providing:
+| Status | Can Modify? | Who |
+|-----|-----------|----|
+| PENDING | ✅ Yes | Admin / HOD |
+| APPROVED | ❌ No | — |
+| REJECTED | ❌ No | — |
 
-- `registerNumber`
-- `department`
-- `course`
-- `year`
-- `section` (if applicable)
-- `fullName`
-- `email`
-- `phone`
+### Confirmation Rule
+> Once **APPROVED**, this entity is considered **final**  
+and is used to create `User` and `Student`.
 
-These fields represent the student's **real-world academic identity** and are required for event registrations, approvals, and certificate issuance.
+---
 
-### ⚙️ What the System Generates or Controls
+## 4. User
 
-The system is responsible for:
+### Purpose
+Represents **login credentials and role**, nothing else.
 
-- `id` (both User and Student)
-- Password hashing
-- Role assignment (including `student` role)
-- `primaryRole` logic
-- `isActive` toggling (both User and Student)
-- Automatically linking `Student.userId` → `User.id`
+### Modifiable By
+- System (on creation)
+- Admin (status only)
 
-## 🧠 Design Rationale (Important)
+### Modifiable Fields
+- `isActive`
 
-| Concept              | Meaning                                                                 |
-|----------------------|-------------------------------------------------------------------------|
-| **User**             | Who you are & what you can do (identity + permissions)                  |
-| **Student**          | Academic identity & context (for event and institutional workflows)     |
+### Immutable Fields
+- Email
+- Role
 
-### Benefits of this separation
+### Confirmation Rule
+> Users are created **only after approval**  
+and never store academic or event-related data.
 
-- Avoids **data duplication** (e.g., fullName in both entities)
-- Prevents **permission confusion** (authentication vs academic eligibility)
-- Makes future schema changes easier
-- Supports **multi-role users** cleanly
-- Enables **clean permission checks**
-- Scales well for future profiles (StaffProfile, OrganizerProfile, AlumniProfile, etc.)
+---
 
-This design follows the **Single Responsibility Principle** and prepares the system for long-term maintainability and extensibility.
+## 5. Student
+
+### Purpose
+Represents a **verified academic identity**.
+
+### Modifiable By
+- Admin / HOD
+
+### Modifiable Fields
+- Year (promotion)
+- Status (active/inactive)
+
+### Immutable Fields
+- Register number
+- Department
+- Course
+
+### Confirmation Rule
+> Once created, a Student is considered **trusted**  
+and eligible for event participation.
+
+---
+
+## 6. Event
+
+### Purpose
+Defines **what the event is** — content, visibility, and communication.
+
+### Modifiable By
+- Staff (creator)
+- Admin (if required)
+
+### Modifiable Fields
+- Title
+- Description (Markdown)
+- Images
+- Event handler name & contact
+- CTA (presentation hint)
+
+### Lifecycle & Mutability
+
+| Event Status | Can Modify Content? |
+|------------|-------------------|
+| UPCOMING | ✅ Yes |
+| ONGOING | ⚠️ Limited (no major edits) |
+| ENDED | ❌ No |
+
+### Confirmation Rule
+> Event content remains editable **until the event starts**.  
+After start time, the event is considered **historical**.
+
+---
+
+## 7. EventRegistration
+
+### Purpose
+Defines **how the event runs** — schedule, hall, rules, approval, and participants.
+
+This is the **source of truth for all business logic**.
+
+### Modifiable By
+- Staff (before approval)
+- Admin (during review)
+
+### Key Fields
+- Event date & time
+- Registration window
+- Hall
+- Allowed departments
+- Max participants
+- Participants list
+- Approval status
+
+---
+
+### Lifecycle & Mutability
+
+| Status | Can Modify? | Notes |
+|-----|-----------|------|
+| DRAFT | ✅ Yes | Staff editing |
+| PENDING | ⚠️ Limited | Staff (before admin action) |
+| APPROVED | ❌ No | Locked |
+| REJECTED | ❌ No | New draft required |
+| COMPLETED | ❌ No | Historical |
+
+---
+
+### Confirmation Rule (Very Important)
+
+> Once an EventRegistration is **APPROVED**:
+- Event date **cannot change**
+- Hall **cannot change**
+- Registration window **cannot change**
+- Participant rules **cannot change**
+
+Any change after approval requires:
+- Cancelling the registration
+- Creating a **new EventRegistration**
+- Re-approval
+
+---
+
+## 8. Time-Based Confirmation Rules
+
+| Condition | Meaning |
+|--------|--------|
+| Before approval | Data is tentative |
+| After approval | Data is confirmed |
+| After event start | Data is historical |
+| After event end | Data is immutable |
+
+---
+
+## 9. Why These Rules Exist
+
+- Prevents silent data corruption
+- Preserves auditability
+- Avoids confusing UI behavior
+- Keeps approval meaningful
+- Supports long-term system growth
+
+---
+
+## 10. Final Note
+
+This system intentionally separates:
+- **Identity vs Execution**
+- **Presentation vs Rules**
+- **Draft vs Confirmed Data**
+
+Any future feature must respect these boundaries.

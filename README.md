@@ -3,7 +3,28 @@
 **Repository:** `vickydecodes/SRM-Event-Management-System`  
 **Tech Stack:** JavaScript (React frontend + Node.js backend) + CSS + TypeScript (partial) + HTML  
 **Activity:** 1 commit (initial boilerplate)
-[Full document of the access control among the system → ACCESS.md](./ACCESS.md)
+
+---
+
+## 📘 Documentation
+
+This project is governed by **two core reference documents**:
+
+### 1️⃣ Access Control
+- 🔐 [ACCESS.md](./ACCESS.md)  
+  Defines **who can do what** in the system  
+  (Student application, Student access, Staff abilities, Admin/HOD authority).
+
+### 2️⃣ Entity & Lifecycle Rules
+- 🧱 [ENTITIES.md](./ENTITIES.md)  
+  Defines **what entities exist**, **who can modify them**,  
+  and **until when data is editable or confirmed**.
+
+These two documents together describe the **entire system behavior**:
+- Access answers **“WHO can act”**
+- Entities answer **“WHAT can change and WHEN”**
+
+
 ---
 
 ## 🧱 What’s Been Pushed (Initial Boilerplate Commit)
