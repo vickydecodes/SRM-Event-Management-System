@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export type UserRole = "ADMIN" | "DEPARTMENT" | "STUDENT";
+export type UserRole = "admin" | "staff" | "student";
 
 export interface IUser extends Document {
   name: string;
@@ -9,7 +9,7 @@ export interface IUser extends Document {
 
   role: UserRole;
 
-  departmentId?: mongoose.Types.ObjectId; // for DEPARTMENT & STUDENT
+  departmentId?: mongoose.Types.ObjectId;
 
   active: boolean;
   deleted: boolean;
@@ -35,7 +35,7 @@ const UserSchema: Schema = new Schema(
     password: {
       type: String,
       required: true,
-      select: false, // 🔐 important
+      select: false,
     },
 
     role: {

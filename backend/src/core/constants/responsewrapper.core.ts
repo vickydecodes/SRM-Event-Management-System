@@ -1,9 +1,8 @@
-import { Response } from "express";
-import pluralize from "pluralize";
-import { parseMongoError } from "./mongoErrorParser.ts";
+import { Response } from 'express';
+import { parseMongoError } from './errorparser.core.ts';
+import pluralize from 'pluralize';
 
-const capitalize = (str: string) =>
-  str.charAt(0).toUpperCase() + str.slice(1);
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
 const sendResponse = {
   success: (res: Response, message: string, data: any = null) =>
@@ -31,11 +30,7 @@ const sendResponse = {
     }),
 
   fetched: (res: Response, model: string, data?: any) => {
-    const plural =
-      Array.isArray(data) && data.length > 1
-        ? pluralize(model)
-        : model;
-
+    const plural = Array.isArray(data) && data.length > 1 ? `${pluralize(model)}` : model;
     return res.status(200).json({
       success: true,
       message: `${capitalize(plural)} fetched successfully`,
@@ -44,7 +39,6 @@ const sendResponse = {
       timestamp: new Date().toISOString(),
     });
   },
-
   retrieved: (res: Response, model: string, data?: any) =>
     res.status(200).json({
       success: true,
@@ -52,21 +46,40 @@ const sendResponse = {
       data: data || null,
       timestamp: new Date().toISOString(),
     }),
+  blocked: (res: Response, message: string, data?: any, code: string = 'ENTITY_IN_USE') =>
+    res.status(409).json({
+      success: false,
+      message,
+      data: data || null,
+      code,
+      timestamp: new Date().toISOString(),
+    }),
 
-  deleted: (res: Response, model: string) =>
+  deleted: (res: Response, model: string, data?: any) =>
     res.status(200).json({
       success: true,
+      data: data || null,
       message: `${capitalize(model)} deleted successfully`,
       timestamp: new Date().toISOString(),
     }),
 
-  paginated: (
-    res: Response,
-    model: string,
-    result: { data: any[]; pagination: any }
-  ) => {
-    const plural =
-      result.data.length > 1 ? pluralize(model) : model;
+  badRequest: (res: Response, message: string = 'Bad request') => {
+    return res.status(400).json({
+      success: false,
+      message: message,
+      data: null,
+      timestamp: new Date().toISOString(),
+    });
+  },
+
+  notFound: (res: Response, model: string) =>
+    res.status(404).json({
+      success: false,
+      message: `${capitalize(model)} not found`,
+      timestamp: new Date().toISOString(),
+    }),
+  paginated: (res: Response, model: string, result: { data: any[]; pagination: any }) => {
+    const plural = result.data.length > 1 ? pluralize(model) : model;
 
     return res.status(200).json({
       success: true,
@@ -78,43 +91,29 @@ const sendResponse = {
     });
   },
 
-  badRequest: (res: Response, message = "Bad request") =>
+  validationError: (res: Response, message: string) =>
     res.status(400).json({
       success: false,
       message,
       timestamp: new Date().toISOString(),
     }),
 
-  notFound: (res: Response, model: string) =>
-    res.status(404).json({
-      success: false,
-      message: `${capitalize(model)} not found`,
-      timestamp: new Date().toISOString(),
-    }),
-
-  unauthorized: (res: Response, message = "Unauthorized") =>
+  unauthorized: (res: Response, message = 'Unauthorized') =>
     res.status(401).json({
       success: false,
       message,
       timestamp: new Date().toISOString(),
     }),
 
-  forbidden: (res: Response, message = "Forbidden") =>
+  forbidden: (res: Response, message = 'Forbidden') =>
     res.status(403).json({
       success: false,
       message,
       timestamp: new Date().toISOString(),
     }),
 
-  conflict: (res: Response, message = "Conflict") =>
+  conflict: (res: Response, message = 'Conflict') =>
     res.status(409).json({
-      success: false,
-      message,
-      timestamp: new Date().toISOString(),
-    }),
-
-  validationError: (res: Response, message: string) =>
-    res.status(400).json({
       success: false,
       message,
       timestamp: new Date().toISOString(),
@@ -125,7 +124,7 @@ const sendResponse = {
     return res.status(500).json({
       success: false,
       message: parsed.message || `Error processing ${model}`,
-      code: parsed.code || "UNKNOWN_ERROR",
+      code: parsed.code || 'UNKNOWN_ERROR',
       timestamp: new Date().toISOString(),
     });
   },

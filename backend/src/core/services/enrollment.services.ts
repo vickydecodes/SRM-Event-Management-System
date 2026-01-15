@@ -1,5 +1,5 @@
 import Enrollment from "../../database/models/enrollment.model.js";
-import { dynamicFilter, FilterConfig } from "../constants/dynamicFilter.js";
+import { dynamicFilter, FilterConfig } from "../constants/dynamicfilter.core.ts";
 
 
 const enrollmentFilterConfig = {

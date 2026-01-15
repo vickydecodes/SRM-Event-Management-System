@@ -1,5 +1,5 @@
 import Department, { IDepartment } from "../../database/models/department.model.js";
-import { dynamicFilter, FilterConfig } from "../constants/dynamicFilter.js";
+import { dynamicFilter, FilterConfig } from "../constants/dynamicfilter.core.ts";
 
 
 const departmentFilterConfig = {

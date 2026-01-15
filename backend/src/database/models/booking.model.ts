@@ -1,20 +1,16 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IBooking extends Document {
-  hallId: mongoose.Types.ObjectId;
-  departmentId: mongoose.Types.ObjectId;
+  hall: mongoose.Types.ObjectId;
+  department: mongoose.Types.ObjectId;
 
-  eventName: string;
+  name: string;
   fromDate: Date;
   toDate: Date;
-  fromTime: string;
-  toTime: string;
 
-  inchargeName: string;
-  inchargePhone: string;
-  inchargeEmail: string;
+  incharge: mongoose.Types.ObjectId;
 
-  status: "PENDING" | "APPROVED" | "REJECTED";
+  status: "pending" | "approved" | "rejected";
 
   active: boolean;
   deleted: boolean;
@@ -23,19 +19,19 @@ export interface IBooking extends Document {
 
 const BookingSchema: Schema = new Schema(
   {
-    hallId: {
+    hall: {
       type: Schema.Types.ObjectId,
-      ref: "EventHall",
+      ref: "Hall",
       required: true,
     },
 
-    departmentId: {
+    department: {
       type: Schema.Types.ObjectId,
       ref: "Department",
       required: true,
     },
 
-    eventName: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true },
 
     fromDate: { type: Date, required: true },
     toDate: { type: Date, required: true },
@@ -43,18 +39,12 @@ const BookingSchema: Schema = new Schema(
     fromTime: { type: String, required: true },
     toTime: { type: String, required: true },
 
-    inchargeName: { type: String, required: true },
-    inchargePhone: { type: String, required: true },
-    inchargeEmail: {
-      type: String,
-      required: true,
-      lowercase: true,
-    },
+    incharge: { type: Schema.Types.ObjectId, ref: "User", required: true },
 
     status: {
       type: String,
-      enum: ["PENDING", "APPROVED", "REJECTED"],
-      default: "PENDING",
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
     },
 
     active: { type: Boolean, default: true },

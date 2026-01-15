@@ -47,7 +47,7 @@ console.log("Setting up routes...");
         🔒 Security    : All middlewares applied
         ✅ Status      : Running smoothly on port ${ENV.PORT || 3000}
         ============================================================
-`);
+    `);
   } catch (err) {
     console.error("❌ Startup failed:", err);
     process.exit(1);

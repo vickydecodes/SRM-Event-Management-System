@@ -1,5 +1,5 @@
 import Booking, { IBooking } from "../../database/models/booking.model.js";
-import { dynamicFilter, FilterConfig } from "../constants/dynamicFilter.js";
+import { dynamicFilter, FilterConfig } from "../constants/dynamicfilter.core.ts";
 
 
 const bookingFilterConfig = {

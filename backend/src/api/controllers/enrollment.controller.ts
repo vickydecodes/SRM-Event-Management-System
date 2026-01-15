@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import sendResponse from "@core/constants/responseWrapper.js";
-import { wrapControllers } from "@core/constants/wrapControllers.js";
+import sendResponse from "@core/constants/responsewrapper.core.ts";
+import { wrapControllers } from "@core/constants/wrapcontrollers.core.ts";
 import * as service from "@core/services/enrollment.services.js";
 import { AccessRequest } from "@core/middlewares/access.middleware.js";
-import { buildQuery } from "@core/constants/queryBuilder.js";
+import { buildQuery } from "@core/constants/querybuilder.core.js";
 
 const controllers = {
   createEnrollment: async (req: Request, res: Response) => {

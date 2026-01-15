@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from "express";
-import sendResponse from "@core/constants/responseWrapper.js";
-import { wrapControllers } from "@core/constants/wrapControllers.js";
+import sendResponse from "@core/constants/responsewrapper.core.ts";
+import { wrapControllers } from "@core/constants/wrapcontrollers.core.ts";
 import * as service from "@core/services/event-hall.services.js";
-import { createStatusControllers } from "@core/constants/createStatusControllers.js";
+import { createStatusControllers } from "@core/constants/createstatus.core.ts";
 import { AccessRequest } from "@core/middlewares/access.middleware.js";
-import { buildQuery } from "@core/constants/queryBuilder.js";
+import { buildQuery } from "@core/constants/querybuilder.core.js";
 
 const status = createStatusControllers(service, "eventHall");
 
