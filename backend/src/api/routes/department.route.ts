@@ -1,94 +1,37 @@
-import { Router } from "express";
+import { Router } from 'express';
 import {
   createDepartment,
   getAllDepartments,
   getDepartmentById,
   updateDepartment,
   deleteDepartment,
-  setDepartmentActiveStatus,
   eraseDepartment,
   retrieveDepartment,
-} from "../controllers/department.controller.js";
+} from '../controllers/department.controller.js';
 
-import { authMiddleware } from "@core/middlewares/auth.middleware.js";
-import { accessControl } from "@core/middlewares/access.middleware.js";
-import { requirePermission } from "@core/middlewares/require-permission.middleware.js";
-import { zodValidate } from "@core/middlewares/zod.validator.js";
-import { departmentSchema } from "@api/validators/department.validator.ts";
+import { authMiddleware } from '@core/middlewares/auth.middleware.js';
+import { accessControl } from '@core/middlewares/access.middleware.js';
+import { requirePermission } from '@core/middlewares/require-permission.middleware.js';
+import { zodValidate } from '@core/middlewares/zod.validator.js';
+import { departmentSchema } from '@api/validators/department.validator.ts';
 
 const router = Router();
 
-/**
- * ----------------------------------------
- * GLOBAL PROTECTION
- * ----------------------------------------
- */
-router.use(authMiddleware);
-router.use(accessControl);
+// router.use(authMiddleware);
+// router.use(accessControl);
 
-/**
- * ----------------------------------------
- * DEPARTMENT MANAGEMENT ROUTES
- * ----------------------------------------
- */
+router.post('/', createDepartment);
 
-// CREATE → department.create
-router.post(
-  "/",
-  zodValidate(departmentSchema),
-  requirePermission("department", "create"),
-  createDepartment
-);
+router.get('/', getAllDepartments);
 
-// LIST → department.view
-router.get(
-  "/",
-  requirePermission("department", "view"),
-  getAllDepartments
-);
+router.get('/:id', getDepartmentById);
 
-// GET BY ID → department.view
-router.get(
-  "/:id",
-  requirePermission("department", "view"),
-  getDepartmentById
-);
+router.put('/:id', updateDepartment);
 
-// UPDATE → department.update
-router.put(
-  "/:id",
-  zodValidate(departmentSchema.partial()),
-  requirePermission("department", "update"),
-  updateDepartment
-);
+router.delete('/:id', deleteDepartment);
 
-// SOFT DELETE → department.delete
-router.delete(
-  "/:id",
-  requirePermission("department", "delete"),
-  deleteDepartment
-);
+router.delete('/:id/erase', eraseDepartment);
 
-// SET ACTIVE STATUS
-router.patch(
-  "/:id/active-status",
-  zodValidate(departmentSchema.partial()),
-  requirePermission("department", "update"),
-  setDepartmentActiveStatus
-);
-
-// HARD DELETE
-router.delete(
-  "/:id/erase",
-  requirePermission("department", "delete"),
-  eraseDepartment
-);
-
-// RETRIEVE
-router.put(
-  "/:id/retrieve",
-  requirePermission("department", "retrieve"),
-  retrieveDepartment
-);
+router.put('/:id/retrieve', retrieveDepartment);
 
 export default router;

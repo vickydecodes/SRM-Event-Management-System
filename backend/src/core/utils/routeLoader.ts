@@ -83,6 +83,8 @@ export const loadRoutes = async (app: Application): Promise<void> => {
     }
   }
 
+  
+
   const duration = ((Date.now() - startTime) / 1000).toFixed(2);
 
   console.log(chalk.blueBright.bold("\n" + "=".repeat(60)));
