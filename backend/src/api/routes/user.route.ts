@@ -7,7 +7,7 @@ import {
   deleteUser,
   retrieveUser,
   eraseUser,
-} from '../controllers/User.controller.ts';
+} from '../controllers/user.controller.ts';
 
 import { authMiddleware } from '@core/middlewares/auth.middleware.js';
 import { accessControl } from '@core/middlewares/access.middleware.js';
