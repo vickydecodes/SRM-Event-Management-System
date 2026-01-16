@@ -1,9 +1,9 @@
 import express, { Express, Request, Response } from "express";
 import { ENV } from "@config/env.config.js";
 import connectDB from "@config/db.config.js";
-// import { loadRoutes } from "@utils/routeLoader.js";
-// import errorHandler from "@core/errors/errorHandler.js";
-// import { applySecurityMiddlewares } from "@config/security.config.js";
+import { loadRoutes } from "@utils/routeLoader.js";
+import errorHandler from "@core/errors/error.handler.js";
+import { applySecurityMiddlewares } from "@config/security.config.js";
 // import { seedUserPermissions } from "@config/permissions.config.ts";
 
 const app: Express = express();
@@ -30,8 +30,8 @@ console.log("Setting up routes...");
 
 // // await seedUserPermissions();
 
-//     console.log("Loading routes...");
-//     await loadRoutes(app);
+    console.log("Loading routes...");
+    await loadRoutes(app);
 
 
 //     // Centralized error handler

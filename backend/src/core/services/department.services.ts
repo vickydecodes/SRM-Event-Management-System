@@ -12,9 +12,7 @@ export const create = async (data: any) =>
   new Department(data).save();
 
 export const getAll = async (queries: Record<string, any>, role?: string) =>
-  dynamicFilter(Department, departmentFilterConfig, queries, {
-    visibility: role === "ADMIN" ? "all" : "active-only",
-  });
+  Department.find({});
 
 export const getById = async (id: string) =>
   Department.findById(id);
