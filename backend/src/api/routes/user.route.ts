@@ -1,37 +1,37 @@
 import { Router } from 'express';
 import {
-  createCourse,
-  getAllCourses,
-  getCourseById,
-  updateCourse,
-  deleteCourse,
-  retrieveCourse,
-  eraseCourse,
-} from '../controllers/course.controller.ts';
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  retrieveUser,
+  eraseUser,
+} from '../controllers/User.controller.ts';
 
 import { authMiddleware } from '@core/middlewares/auth.middleware.js';
 import { accessControl } from '@core/middlewares/access.middleware.js';
 import { requirePermission } from '@core/middlewares/require-permission.middleware.js';
 import { zodValidate } from '@core/middlewares/zod.validator.js';
-// import { CourseSchema } from "@api/validators/event-hall.validator.ts";
+// import { UserSchema } from "@api/validators/event-hall.validator.ts";
 
 const router = Router();
 
 // router.use(authMiddleware);
 // router.use(accessControl);
 
-router.post('/', createCourse);
+router.post('/', createUser);
 
-router.get('/', getAllCourses);
+router.get('/', getAllUsers);
 
-router.get('/:id', getCourseById);
+router.get('/:id', getUserById);
 
-router.put('/:id', updateCourse);
+router.put('/:id', updateUser);
 
-router.delete('/:id', deleteCourse);
+router.delete('/:id', deleteUser);
 
-router.put('/:id/retrieve', retrieveCourse);
+router.put('/:id/retrieve', retrieveUser);
 
-router.delete('/:id/erase', eraseCourse);
+router.delete('/:id/erase', eraseUser);
 
 export default router;
