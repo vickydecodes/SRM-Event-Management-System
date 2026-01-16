@@ -7,21 +7,43 @@ const hallFilterConfig = {
   defaultSort: 'createdAt',
 } satisfies FilterConfig<IHall>;
 
-export const create = async (data: any) => new Hall(data).save();
+export const create = async (data: any) => {
+  const hall = await new Hall(data).save();
+  return hall;
+};
 
-export const getAll = async (queries: Record<string, any>, role?: string) =>
-  Hall.find({});
+export const getAll = async (queries: Record<string, any>, role?: string) => {
+  const halls = await Hall.find({});
+  return halls;
+};
 
-export const getById = async (id: string) => Hall.findById(id);
+export const getById = async (id: string) => {
+  const hall = await Hall.findById(id);
+  return hall;
+};
 
-export const update = async (id: string, data: any) =>
-  Hall.findByIdAndUpdate(id, data, { new: true });
+export const update = async (id: string, data: any) => {
+  const hall = await Hall.findByIdAndUpdate(id, data, { new: true });
+  return hall;
+};
 
-export const remove = async (id: string) =>
-  Hall.findByIdAndUpdate(
+export const remove = async (id: string) => {
+  return await Hall.findByIdAndUpdate(
     id,
     { active: false, deleted: true, deletedAt: new Date() },
     { new: true }
   );
+};
 
-export const erase = async (id: string) => Hall.findByIdAndDelete(id);
+export const retrieve = async (id: string) => {
+  return await Hall.findByIdAndUpdate(
+    id,
+    { active: true, deleted: false, deletedAt: null },
+    { new: true }
+  );
+};
+
+export const erase = async (id: string) => {
+  const hall = await Hall.findByIdAndDelete(id);
+  return hall;
+};

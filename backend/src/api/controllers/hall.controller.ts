@@ -2,52 +2,52 @@ import { Request, Response } from 'express';
 import sendResponse from '@core/constants/responsewrapper.core.ts';
 import * as service from '@core/services/hall.services.js';
 import { createStatusControllers } from '@core/constants/createstatus.core.ts';
-import { buildQuery } from '@core/constants/querybuilder.core.js';
 import { wrapControllers } from '@core/constants/wrapcontrollers.core.ts';
 import { AccessRequest } from '@core/middlewares/access.middleware.js';
+import { buildQuery } from '@core/constants/querybuilder.core.js';
 
-const status = createStatusControllers(service, 'course');
+const status = createStatusControllers(service, 'Hall');
 
 const controllers = {
-  createCourse: async (req: Request, res: Response) => {
-    const course = await service.create(req.body);
-    if (!course) return sendResponse.badRequest(res, 'Course');
-    return sendResponse.created(res, 'Course', course);
+  createHall: async (req: Request, res: Response) => {
+    const hall = await service.create(req.body);
+    if (!hall) return sendResponse.badRequest(res, 'Hall');
+    return sendResponse.created(res, 'Hall', hall);
   },
 
-  getAllCourses: async (req: Request, res: Response) => {
-    const courses = await service.getAll(req.query);
-    return sendResponse.fetched(res, 'Course', courses);
+  getAllHalls: async (req: Request, res: Response) => {
+    const halls = await service.getAll(req.query);
+    return sendResponse.fetched(res, 'Hall', halls);
   },
 
-  getCourseById: async (req: Request, res: Response) => {
-    const course = await service.getById(req.params.id);
-    if (!course) return sendResponse.notFound(res, 'Course');
-    return sendResponse.fetched(res, 'Course', course);
+  getHallById: async (req: Request, res: Response) => {
+    const hall = await service.getById(req.params.id);
+    if (!hall) return sendResponse.notFound(res, 'Hall');
+    return sendResponse.fetched(res, 'Hall', hall);
   },
 
-  updateCourse: async (req: Request, res: Response) => {
-    const course = await service.update(req.params.id, req.body);
-    if (!course) return sendResponse.notFound(res, 'Course');
-    return sendResponse.updated(res, 'Course', course);
+  updateHall: async (req: Request, res: Response) => {
+    const hall = await service.update(req.params.id, req.body);
+    if (!hall) return sendResponse.notFound(res, 'Hall');
+    return sendResponse.updated(res, 'Hall', hall);
   },
 
-  deleteCourse: status.softDelete,
-  retrieveCourse: status.retrieve,
-
-  eraseCourse: async (req: Request, res: Response) => {
-    const course = await service.erase(req.params.id);
-    if (!course) return sendResponse.notFound(res, 'Course');
-    return sendResponse.deleted(res, 'Course');
+  eraseHall: async (req: Request, res: Response) => {
+    const hall = await service.erase(req.params.id);
+    if (!hall) return sendResponse.notFound(res, 'Hall');
+    return sendResponse.deleted(res, 'Hall');
   },
+
+  deleteHall: status.softDelete,
+  retrieveHall: status.retrieve,
 };
 
 export const {
-  createCourse,
-  getAllCourses,
-  getCourseById,
-  updateCourse,
-  deleteCourse,
-  retrieveCourse,
-  eraseCourse,
+  createHall,
+  getAllHalls,
+  getHallById,
+  updateHall,
+  deleteHall,
+  retrieveHall,
+  eraseHall,
 } = wrapControllers(controllers);
