@@ -1,5 +1,7 @@
-import { createContext, useContext } from 'react';
+/* eslint-disable react-refresh/only-export-components */
 
+import { createContext, useContext } from "react";
+import { useDepartmentModule } from "@/modules/department/department.module";
 
 const ApiContext = createContext();
 
@@ -12,7 +14,20 @@ export const useApi = () => {
 };
 
 export const ApiProvider = ({ children }) => {
+
   const exported = {};
 
-  return <ApiContext.Provider value={{ ...exported }}>{children}</ApiContext.Provider>;
+
+  const departmentModule = useDepartmentModule(exported);
+
+  Object.assign(exported, {
+    departments: departmentModule,
+  });
+
+
+  return (
+    <ApiContext.Provider value={{ ...exported }}>
+      {children}
+    </ApiContext.Provider>
+  );
 };
