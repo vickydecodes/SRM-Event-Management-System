@@ -91,3 +91,5 @@ const EventSchema = new Schema<IEvent>(
 );
 
 export default mongoose.model<IEvent>('Event', EventSchema);
+
+
