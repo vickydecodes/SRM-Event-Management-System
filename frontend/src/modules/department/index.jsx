@@ -1,0 +1,1 @@
+export {useDepartmentModule} from './department.module';

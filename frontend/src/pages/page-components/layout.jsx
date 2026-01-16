@@ -6,7 +6,6 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { CommandMenu } from './command';
 import { Search } from 'lucide-react';
 import { useUI } from '@/core/contexts/ui.context';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function Layout({ routes, logoutComponent }) {
   const { setCommandOpen, sidebarOpen, setSidebarOpen, commandOpen, commands, setOpenLogout } =
@@ -18,14 +17,14 @@ export default function Layout({ routes, logoutComponent }) {
   return (
     <div
       className={cn(
-        'mx-auto flex h-screen w-full flex-col overflow-hidden border border-neutral-200 bg-gray-100 md:flex-row dark:border-neutral-700 dark:bg-neutral-800'
+        'mx-auto flex h-screen w-screen flex-col overflow-hidden border border-neutral-200 bg-gray-100 md:flex-row dark:border-neutral-700 dark:bg-neutral-800'
       )}
     >
       {/* Sidebar */}
       <Sidebar open={sidebarOpen} setOpen={setSidebarOpen}>
         <SidebarBody className="justify-between gap-10" setCommandOpen={setCommandOpen}>
           <div className="flex flex-1 flex-col overflow-x-hidden overflow-y-auto scrollbar-none">
-            {sidebarOpen ? <Logo /> : <LogoIcon />}
+            {sidebarOpen ? <Logo /> : <Logo />}
 
             <div className="mt-8 flex flex-col gap-2">
               {routes.map((route) => (
@@ -77,10 +76,9 @@ export default function Layout({ routes, logoutComponent }) {
             </button>
           </div>
         )}
-        <ScrollArea className="h-[calc(100vh-220px)] pr-4 -mr-4">
-          {/* Page Content */}
+    <div className="m-1 md:m-10 overflow-auto">
           <Outlet />
-        </ScrollArea>
+        </div>
       </div>
     </div>
   );

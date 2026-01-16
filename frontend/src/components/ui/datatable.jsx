@@ -1,23 +1,21 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 import {
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   getFilteredRowModel,
-  getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 
 import {
   Table,
@@ -26,7 +24,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from '@/components/ui/table';
 
 import {
   Select,
@@ -34,9 +32,12 @@ import {
   SelectContent,
   SelectItem,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, PlusCircle } from 'lucide-react';
+import { camelToTitle } from '@/core/utils/helper.utils';
+import { TableMenubar } from './tablemenubar';
+import { EmptyDemo } from './emptycomp';
 
 export default function DataTable({
   columns,
@@ -45,6 +46,20 @@ export default function DataTable({
 
   filters = [],
   exports = [],
+  customs = [],
+  reset = () => {},
+  create = {
+    provision: false,
+    permission: false,
+    label: '',
+    action: () => {},
+  },
+
+  fallback = {
+    title: 'No data available',
+    description: 'There’s nothing to show here right now.',
+    buttons: [],
+  },
 
   manualPagination = false,
   pageCount = 1,
@@ -53,33 +68,27 @@ export default function DataTable({
   onPaginationChange,
   onSortChange,
 }) {
-  // ------------------------------
-  // 🔥 Internal Pagination State
-  // ------------------------------
   const [pageIndex, setPageIndex] = React.useState(0);
   const [pageSize, setPageSize] = React.useState(10);
+  const [sorting, setSorting] = React.useState([]);
+  const skipPaginationRef = React.useRef(false);
+  const searchTimeoutRef = React.useRef(null);
 
   const isServer = manualPagination === true;
 
-  // ------------------------------
-  // 🔥 Debug Logs
-  // ------------------------------
-  console.log("🟦 DataTable Rendered");
-  console.log("🔹 manualPagination:", isServer);
-  console.log("🔹 pageIndex:", pageIndex);
-  console.log("🔹 pageSize:", pageSize);
-  console.log("🔹 incoming data length:", data?.length);
+  console.log('🟦 DataTable Rendered');
+  console.log('🔹 manualPagination:', isServer);
+  console.log('🔹 pageIndex:', pageIndex);
+  console.log('🔹 pageSize:', pageSize);
+  console.log('🔹 incoming data length:', data?.length);
 
-  // ------------------------------
-  // 🔥 Server Pagination Callback
-  // ------------------------------
   React.useEffect(() => {
     if (!isServer || !onPaginationChange) return;
 
-    console.log("📡 Server pagination triggered:", {
-      page: pageIndex + 1,
-      limit: pageSize,
-    });
+    if (skipPaginationRef.current) {
+      skipPaginationRef.current = false;
+      return;
+    }
 
     onPaginationChange({
       page: pageIndex + 1,
@@ -87,99 +96,116 @@ export default function DataTable({
     });
   }, [pageIndex, pageSize]);
 
-  // ------------------------------
-  // 🔥 Build the Table
-  // ------------------------------
   const table = useReactTable({
     data,
     columns,
 
     state: {
       pagination: { pageIndex, pageSize },
+      sorting,
     },
 
-    onPaginationChange: (updater) => {
-      const next =
-        typeof updater === "function"
-          ? updater({ pageIndex, pageSize })
-          : updater;
+    manualPagination: isServer,
+    manualSorting: true,
+    pageCount: isServer ? pageCount : undefined,
 
-      console.log("🔸 Pagination updated:", next);
+    onPaginationChange: (updater) => {
+      const next = typeof updater === 'function' ? updater({ pageIndex, pageSize }) : updater;
 
       setPageIndex(next.pageIndex);
       setPageSize(next.pageSize);
     },
 
-    manualPagination: isServer,
-    pageCount: isServer ? pageCount : undefined,
+    onSortingChange: setSorting,
 
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: isServer ? undefined : getPaginationRowModel(),
   });
 
-  console.log("🔹 rows displayed in table:", table.getRowModel().rows.length);
+  console.log('🔹 rows displayed in table:', table.getRowModel().rows.length);
+
+  const menubarConfig = React.useMemo(() => {
+    const config = [];
+
+    if (filters?.length) {
+      config.push({
+        title: 'Filter',
+        items: filters.map((f) => ({
+          label: f.label,
+          action: () =>
+            f.action({
+              page: pageIndex + 1,
+              limit: pageSize,
+            }),
+        })),
+      });
+    }
+
+    if (customs?.length) {
+      customs.forEach((c) => {
+        config.push({
+          title: c.title,
+          items: c.filters.map((f) => ({
+            label: f.label,
+            action: f.action,
+          })),
+        });
+      });
+    }
+
+    if (exports?.length) {
+      config.push({
+        title: 'Export',
+        items: exports.map((e) => ({
+          label: e.label,
+          action: e.action,
+        })),
+      });
+    }
+
+    return config;
+  }, [filters, exports, customs]);
 
   return (
     <div className="w-full">
-
       {searchKey && (
-        <div className="flex items-center py-4 gap-3">
+        <div
+          className="flex flex-col gap-3 py-4
+                md:flex-row md:flex-wrap md:items-center md:justify-between"
+        >
           <Input
-            placeholder={`Search ${searchKey}...`}
+            placeholder={`Search ${camelToTitle(searchKey)}...`}
             onChange={(e) => {
-              table.getColumn(searchKey)?.setFilterValue(e.target.value);
+              const value = e.target.value;
+
+              clearTimeout(searchTimeoutRef.current);
+
+              searchTimeoutRef.current = setTimeout(() => {
+                skipPaginationRef.current = true;
+                setPageIndex(0);
+
+                onPaginationChange?.({
+                  page: 1,
+                  limit: pageSize,
+                  search: value || null,
+                  __replace: true,
+                });
+              }, 400);
             }}
-            className="max-w-sm"
+            className="max-w-sm w-150"
           />
-          {filters.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="lg">
-                  Filters <ChevronDown className="ml-1 h-6 w-6" />
-                </Button>
-              </DropdownMenuTrigger>
 
-              <DropdownMenuContent align="start" className="w-40">
-                {filters.map((f, idx) => (
-                  <DropdownMenuCheckboxItem
-                    key={idx}
-                    checked={false} // not tracking checked state (one-shot filter action)
-                    onCheckedChange={() => {
-                      console.log("🎛 Filter applied:", f.label);
-                      f.action();
-                    }}
-                  >
-                    {f.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-          {exports.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="lg">
-                  Export <ChevronDown className="ml-1 h-6 w-6" />
-                </Button>
-              </DropdownMenuTrigger>
+          {menubarConfig.length > 0 && (
+            <TableMenubar
+              config={menubarConfig}
+              reset={() => {
+                skipPaginationRef.current = true;
+                setSorting([]);
+                setPageIndex(0);
 
-              <DropdownMenuContent align="start" className="w-48">
-                {exports.map((exp, idx) => (
-                  <DropdownMenuCheckboxItem
-                    key={idx}
-                    checked={false}
-                    onCheckedChange={() => {
-                      console.log("📤 Export Triggered:", exp.label);
-                      exp.action();
-                    }}
-                  >
-                    {exp.label}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                reset();
+              }}
+            />
           )}
 
           <DropdownMenu>
@@ -195,57 +221,54 @@ export default function DataTable({
                   key={column.id}
                   checked={column.getIsVisible()}
                   onCheckedChange={(v) => {
-                    console.log("👁 Toggle column:", column.id, v);
+                    console.log('👁 Toggle column:', column.id, v);
                     column.toggleVisibility(!!v);
                   }}
                 >
-                  {column.columnDef.column_name || column.id}
+                  {camelToTitle(column.id) || column.id}
                 </DropdownMenuCheckboxItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+          {create.provision && create.permission && (
+            <Button className="flex items-center gap-2" onClick={create.action}>
+              <PlusCircle className="w-4 h-4" />
+              {create.label}
+            </Button>
+          )}
         </div>
       )}
 
-      {/* ------------------------------ */}
-      {/* 📊 TABLE */}
-      {/* ------------------------------ */}
       <div className="overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id}>
                 {hg.headers.map((header) => {
-                  const canSort =
-                    !!onSortChange && header.column.columnDef.enableSorting;
+                  const canSort = !!onSortChange && header.column.columnDef.enableSorting;
 
                   return (
                     <TableHead
                       key={header.id}
-                      className={canSort ? "cursor-pointer select-none" : ""}
+                      className={canSort ? 'cursor-pointer select-none' : ''}
                       onClick={() => {
                         if (!canSort) return;
+                        skipPaginationRef.current = true;
 
-                        const direction =
-                          header.column.getIsSorted() === "asc"
-                            ? "desc"
-                            : "asc";
+                        const direction = header.column.getIsSorted() === 'asc' ? 'desc' : 'asc';
 
-                        console.log("↕ Sort triggered:", {
-                          column: header.column.id,
-                          direction,
-                        });
+                        setSorting([{ id: header.column.id, desc: direction === 'desc' }]);
+                        setPageIndex(0);
 
                         onSortChange({
                           sortBy: header.column.id,
                           order: direction,
+                          limit: pageSize,
+                          __replace: true,
                         });
                       }}
                     >
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                      {flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -259,21 +282,17 @@ export default function DataTable({
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="text-center h-24"
-                >
-                  No results found
+                <TableCell colSpan={7} className="text-center py-8">
+                  <div className="flex justify-center items-center">
+                    <EmptyDemo {...fallback} />
+                  </div>
                 </TableCell>
               </TableRow>
             )}
@@ -291,8 +310,7 @@ export default function DataTable({
           </div>
         ) : (
           <div className="text-sm text-muted-foreground">
-            Page {pageIndex + 1} • Showing {table.getRowModel().rows.length}{" "}
-            rows
+            Page {pageIndex + 1} • Showing {table.getRowModel().rows.length} rows
           </div>
         )}
 
@@ -301,8 +319,17 @@ export default function DataTable({
           <Select
             value={String(pageSize)}
             onValueChange={(value) => {
-              console.log("📏 Page size changed:", value);
-              table.setPageSize(Number(value));
+              const nextLimit = Number(value);
+
+              skipPaginationRef.current = true;
+
+              setPageIndex(0);
+              setPageSize(nextLimit);
+
+              onPaginationChange?.({
+                page: 1,
+                limit: nextLimit,
+              });
             }}
           >
             <SelectTrigger className="w-[140px]">
@@ -322,18 +349,33 @@ export default function DataTable({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            disabled={pageIndex === 0}
+            onClick={() => {
+              skipPaginationRef.current = true;
+              setPageIndex((p) => p - 1);
+
+              onPaginationChange?.({
+                page: pageIndex,
+                limit: pageSize,
+              });
+            }}
           >
             Previous
           </Button>
 
-          {/* NEXT */}
           <Button
             variant="outline"
             size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={pageIndex + 1 >= pageCount}
+            onClick={() => {
+              skipPaginationRef.current = true;
+              setPageIndex((p) => p + 1);
+
+              onPaginationChange?.({
+                page: pageIndex + 2,
+                limit: pageSize,
+              });
+            }}
           >
             Next
           </Button>
