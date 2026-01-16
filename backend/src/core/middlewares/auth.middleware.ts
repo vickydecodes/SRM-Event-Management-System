@@ -1,35 +1,25 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import sendResponse from "@core/constants/responseWrapper.js";
-import User from "@db/models/user.model.js";
+// core/middlewares/auth.middleware.ts
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+import sendResponse from '@core/constants/responsewrapper.core.js';
 
-export const authMiddleware = async (
-  req: any,
-  res: Response,
-  next: NextFunction
-) => {
+export interface AuthRequest extends Request {
+  user?: any;
+}
+
+export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => {
+  const token = req.cookies?.access_token;
+
+  if (!token) {
+    return sendResponse.unauthorized(res, 'Unauthenticated');
+  }
+
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return sendResponse.unauthorized(res);
-    }
-
-    const token = authHeader.split(" ")[1];
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-
-    const user = await User.findById(decoded.userId);
-
-    if (!user || user.deleted || !user.active) {
-      return sendResponse.unauthorized(res);
-    }
-
-    // Attach to request
-    req.user = user;
-    req.role = user.role;
-
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    req.user = decoded;
     next();
   } catch (err) {
-    return sendResponse.unauthorized(res);
+    console.error('❌ Invalid Token:', err);
+    return sendResponse.unauthorized(res, 'Invalid or expired token');
   }
 };

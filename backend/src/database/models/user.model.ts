@@ -1,69 +1,37 @@
-import mongoose, { Schema, Document } from "mongoose";
-
-export type UserRole = "ADMIN" | "DEPARTMENT" | "STUDENT";
+import bcrypt from 'bcryptjs';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
   name: string;
   email: string;
   password: string;
-
-  role: UserRole;
-
-  departmentId?: mongoose.Types.ObjectId; // for DEPARTMENT & STUDENT
-
-  active: boolean;
-  deleted: boolean;
-  deletedAt?: Date;
+  role: 'admin' | 'department';
+  department?: mongoose.Types.ObjectId;
 }
 
-const UserSchema: Schema = new Schema(
+const UserSchema = new Schema<IUser>(
   {
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-
-    password: {
-      type: String,
-      required: true,
-      select: false, // 🔐 important
-    },
-
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
     role: {
       type: String,
-      enum: ["ADMIN", "DEPARTMENT", "STUDENT"],
+      enum: ['admin', 'staff'],
       required: true,
     },
-
-    departmentId: {
+    department: {
       type: Schema.Types.ObjectId,
-      ref: "Department",
-    },
-
-    active: {
-      type: Boolean,
-      default: true,
-    },
-
-    deleted: {
-      type: Boolean,
-      default: false,
-    },
-
-    deletedAt: {
-      type: Date,
+      ref: 'Department',
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model<IUser>("User", UserSchema);
+UserSchema.pre("validate", async function (next) {
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 15);
+  }
+  next();
+});
+
+export default mongoose.model<IUser>('User', UserSchema);

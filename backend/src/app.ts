@@ -1,41 +1,30 @@
-import express, { Express, Request, Response } from "express";
-import { ENV } from "@config/env.config.js";
-import connectDB from "@config/db.config.js";
-// import { loadRoutes } from "@utils/routeLoader.js";
-// import errorHandler from "@core/errors/errorHandler.js";
-// import { applySecurityMiddlewares } from "@config/security.config.js";
-// import { seedUserPermissions } from "@config/permissions.config.ts";
+import express, { Express, Request, Response } from 'express';
+import { ENV } from '@config/env.config.js';
+import connectDB from '@config/db.config.js';
+import { loadRoutes } from '@utils/routeLoader.js';
+import errorHandler from '@core/errors/error.handler.js';
+import { applySecurityMiddlewares } from '@config/security.config.js';
+import { unallocatedRouteMiddleware } from '@core/middlewares/unallocated.middleware.ts';
 
 const app: Express = express();
 
-// 🧱 Apply all security middlewares
-
-// 🩺 Health check
-
-app.get("/", (req: Request, res: Response) => {
-  res.send("SRM Event Management API is running smoothly 🔐");
+app.get('/', (req: Request, res: Response) => {
+  res.send('SRM Event Management API is running smoothly 🔐');
 });
 
-app.use(express.json())
+app.use(express.json());
 
-console.log("Setting up routes...");
+console.log('Setting up routes...');
 
 (async () => {
   try {
-    console.log("Connecting to DB...");
+    console.log('Connecting to DB...');
     await connectDB(ENV.MONGO_URI);
 
-//     applySecurityMiddlewares(app);
+    console.log('Loading routes...');
+    await loadRoutes(app);
 
-
-// // await seedUserPermissions();
-
-//     console.log("Loading routes...");
-//     await loadRoutes(app);
-
-
-//     // Centralized error handler
-//     app.use(errorHandler);
+    app.use(unallocatedRouteMiddleware)
 
     console.group(`
         ============================================================
@@ -47,9 +36,9 @@ console.log("Setting up routes...");
         🔒 Security    : All middlewares applied
         ✅ Status      : Running smoothly on port ${ENV.PORT || 3000}
         ============================================================
-`);
+    `);
   } catch (err) {
-    console.error("❌ Startup failed:", err);
+    console.error('❌ Startup failed:', err);
     process.exit(1);
   }
 })();

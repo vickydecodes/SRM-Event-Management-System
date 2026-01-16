@@ -1,16 +1,54 @@
-import { Request, Response, NextFunction } from "express";
+// core/middlewares/zodValidate.ts
 import { ZodSchema } from "zod";
-import sendResponse from "@core/constants/responseWrapper.js";
+import { Request, Response, NextFunction } from "express";
+import sendResponse from "@core/constants/responsewrapper.core.js";
+
+const isDev = process.env.NODE_ENV !== "production";
 
 export const zodValidate =
-  (schema: ZodSchema) =>
+  (
+    schema: ZodSchema,
+    property: "body" | "query" | "params" = "body",
+    schemaName = "UnknownSchema"
+  ) =>
   (req: Request, res: Response, next: NextFunction) => {
-    try {
-      schema.parse(req.body);
-      next();
-    } catch (error: any) {
-      const message =
-        error?.errors?.[0]?.message || "Validation failed";
-      return sendResponse.validationError(res, message);
+    if (isDev) {
+      console.log("────────────────────────────────────");
+      console.log("🔍 ZOD VALIDATION STARTED");
+      console.log("📌 Schema:", schemaName);
+      console.log("📌 Property:", property);
+      console.log("📌 Route:", `${req.method} ${req.originalUrl}`);
+      console.log("📥 Incoming Data:", req[property]);
     }
+
+    const result = schema.safeParse(req[property]);
+
+    if (!result.success) {
+      const issues = result.error.issues.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+
+      if (isDev) {
+        console.log("❌ VALIDATION FAILED");
+        console.log("🧨 Errors:", issues);
+        console.log("────────────────────────────────────");
+      }
+
+      return sendResponse.validationError(
+        res,
+        issues.map((i) => i.message).join(", ")
+      );
+    }
+
+    if (isDev) {
+      console.log("✅ VALIDATION PASSED");
+      console.log("🧼 Sanitized Data:", result.data);
+      console.log("➡️ Forwarding to controller");
+      console.log("────────────────────────────────────");
+    }
+
+    // overwrite request data with validated + sanitized data
+    req[property] = result.data;
+    next();
   };

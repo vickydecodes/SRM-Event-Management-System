@@ -6,6 +6,27 @@
 
 ---
 
+## 📘 Documentation
+
+This project is governed by **two core reference documents**:
+
+### 1️⃣ Access Control
+- 🔐 [ACCESS.md](./ACCESS.md)  
+  Defines **who can do what** in the system  
+  (Student application, Student access, Staff abilities, Admin/HOD authority).
+
+### 2️⃣ Entity & Lifecycle Rules
+- 🧱 [ENTITIES.md](./ENTITIES.md)  
+  Defines **what entities exist**, **who can modify them**,  
+  and **until when data is editable or confirmed**.
+
+These two documents together describe the **entire system behavior**:
+- Access answers **“WHO can act”**
+- Entities answer **“WHAT can change and WHEN”**
+
+
+---
+
 ## 🧱 What’s Been Pushed (Initial Boilerplate Commit)
 
 This commit establishes the foundational full-stack scaffolding for a scalable Event Management System. The structure is modular, clean, and ready for feature development.

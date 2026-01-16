@@ -2,51 +2,20 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IDepartment extends Document {
   name: string;
-  code: string;
+  description: string;
   email: string;
-  contactNumber?: string;
 
-  active: boolean;
-  deleted: boolean;
-  deletedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const DepartmentSchema: Schema = new Schema(
+const DepartmentSchema = new Schema<IDepartment>(
   {
-    name: { type: String, required: true, trim: true },
-
-    code: {
-      type: String,
-      required: true,
-      unique: true,
-      uppercase: true,
-      trim: true,
-    },
-
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-
-    contactNumber: { type: String },
-
-    active: { type: Boolean, default: true },
-    deleted: { type: Boolean, default: false },
-    deletedAt: { type: Date },
+    name: { type: String, required: true },
+    description: { type: String },
+    email: { type: String, required: true, unique: true },
   },
   { timestamps: true }
 );
 
-DepartmentSchema.pre("save", function (next) {
-  const doc = this as unknown as IDepartment;
-  if (doc.code) doc.code = doc.code.toUpperCase();
-  next();
-});
-
-export default mongoose.model<IDepartment>(
-  "Department",
-  DepartmentSchema
-);
+export default mongoose.model<IDepartment>("Department", DepartmentSchema);

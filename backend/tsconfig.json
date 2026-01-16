@@ -13,20 +13,19 @@
     "resolveJsonModule": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "baseUrl": "./src",
-    "noEmit": false,
+    "noEmit": true,
     "incremental": true,
     "paths": {
-      "@api/*": ["api/*"],
-      "@config/*": ["config/*"],
-      "@core/*": ["core/*"],
-      "@db/*": ["database/*"],
-      "@utils/*": ["utils/*"],
-      "@typings/*": ["typings/*"]
+      "@api/*": ["./src/api/*"],
+      "@config/*": ["./src/config/*"],
+      "@core/*": ["./src/core/*"],
+      "@db/*": ["./src/database/*"],
+      "@utils/*": ["./src/core/utils/*"],
+      "@typings/*": ["./src/typings/*"]
     }
   },
-  "include": ["src/**/*", "src/typings/**/*"],
-  "exclude": ["node_modules", "dist"],
+  "include": ["src/**/*", "src/typings/**/*",  "src/typings/mongoose.d.ts"],
+  "exclude": ["node_modules", "dist", "src/core/utils"],
   "ts-node": {
     "esm": true,
     "transpileOnly": true,
