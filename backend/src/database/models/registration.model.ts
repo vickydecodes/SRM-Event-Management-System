@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
-export interface IEventRegistration extends Document {
+export interface IRegistration extends Document {
   event: Types.ObjectId;
 
   status: 'draft' | 'pending' | 'approved' | 'rejected' | 'closed' | 'cancelled';
@@ -10,6 +10,7 @@ export interface IEventRegistration extends Document {
   requestedBy: Types.ObjectId;
   approvedBy?: Types.ObjectId;
   approvedAt?: Date;
+  remarks?: string;
   rejectedReason?: string;
 
   active: boolean;
@@ -20,7 +21,7 @@ export interface IEventRegistration extends Document {
   updatedAt: Date;
 }
 
-const EventRegistrationSchema = new Schema<IEventRegistration>(
+const RegistrationSchema = new Schema<IRegistration>(
   {
     event: {
       type: Schema.Types.ObjectId,
@@ -45,6 +46,7 @@ const EventRegistrationSchema = new Schema<IEventRegistration>(
 
     approvedBy: { type: Schema.Types.ObjectId, ref: 'user' },
     approvedAt: { type: Date },
+    remarks: { type: String },
     rejectedReason: { type: String },
 
     active: { type: Boolean, default: true },
@@ -54,4 +56,4 @@ const EventRegistrationSchema = new Schema<IEventRegistration>(
   { timestamps: true }
 );
 
-export default mongoose.model<IEventRegistration>('EventRegistration', EventRegistrationSchema);
+export default mongoose.model<IRegistration>('Registration', RegistrationSchema);
