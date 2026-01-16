@@ -23,7 +23,7 @@ export const createbtn = (
 ) => ({
   label,
   action,
-  permission,
-  provision: permission,
+  permission: true,
+  provision: true,
 });
 
