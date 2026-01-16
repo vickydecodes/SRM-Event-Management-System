@@ -1,53 +1,53 @@
 import { Request, Response } from 'express';
 import sendResponse from '@core/constants/responsewrapper.core.ts';
-import * as service from '@core/services/course.services.js';
+import * as service from '@core/services/user.services.js';
 import { createStatusControllers } from '@core/constants/createstatus.core.ts';
-import { buildQuery } from '@core/constants/querybuilder.core.js';
 import { wrapControllers } from '@core/constants/wrapcontrollers.core.ts';
 import { AccessRequest } from '@core/middlewares/access.middleware.js';
+import { buildQuery } from '@core/constants/querybuilder.core.js';
 
-const status = createStatusControllers(service, 'course');
+const status = createStatusControllers(service, 'User');
 
 const controllers = {
-  createCourse: async (req: Request, res: Response) => {
-    const course = await service.create(req.body);
-    if (!course) return sendResponse.badRequest(res, 'Course');
-    return sendResponse.created(res, 'Course', course);
+  createUser: async (req: Request, res: Response) => {
+    const user = await service.create(req.body);
+    if (!user) return sendResponse.badRequest(res, 'User');
+    return sendResponse.created(res, 'User', user);
   },
 
-  getAllCourses: async (req: Request, res: Response) => {
-    const courses = await service.getAll(req.query);
-    return sendResponse.fetched(res, 'Course', courses);
+  getAllUsers: async (req: Request, res: Response) => {
+    const users = await service.getAll(req.query);
+    return sendResponse.fetched(res, 'User', users);
   },
 
-  getCourseById: async (req: Request, res: Response) => {
-    const course = await service.getById(req.params.id);
-    if (!course) return sendResponse.notFound(res, 'Course');
-    return sendResponse.fetched(res, 'Course', course);
+  getUserById: async (req: Request, res: Response) => {
+    const user = await service.getById(req.params.id);
+    if (!user) return sendResponse.notFound(res, 'User');
+    return sendResponse.fetched(res, 'User', user);
   },
 
-  updateCourse: async (req: Request, res: Response) => {
-    const course = await service.update(req.params.id, req.body);
-    if (!course) return sendResponse.notFound(res, 'Course');
-    return sendResponse.updated(res, 'Course', course);
+  updateUser: async (req: Request, res: Response) => {
+    const user = await service.update(req.params.id, req.body);
+    if (!user) return sendResponse.notFound(res, 'User');
+    return sendResponse.updated(res, 'User', user);
   },
 
-  deleteCourse: status.softDelete,
-  retrieveCourse: status.retrieve,
-
-  eraseCourse: async (req: Request, res: Response) => {
-    const course = await service.erase(req.params.id);
-    if (!course) return sendResponse.notFound(res, 'Course');
-    return sendResponse.deleted(res, 'Course');
+  eraseUser: async (req: Request, res: Response) => {
+    const user = await service.erase(req.params.id);
+    if (!user) return sendResponse.notFound(res, 'User');
+    return sendResponse.deleted(res, 'User');
   },
+
+  deleteUser: status.softDelete,
+  retrieveUser: status.retrieve,
 };
 
 export const {
-  createCourse,
-  getAllCourses,
-  getCourseById,
-  updateCourse,
-  deleteCourse,
-  retrieveCourse,
-  eraseCourse,
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  retrieveUser,
+  eraseUser,
 } = wrapControllers(controllers);
