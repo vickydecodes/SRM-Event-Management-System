@@ -16,7 +16,7 @@ const controllers = {
 
   getAllDepartments: async (req: Request, res: Response) => {
     const departments = await service.getAll(req.query);
-    return sendResponse.fetched(res, 'department', departments);
+    return sendResponse.paginated(res, 'department', departments);
   },
 
   getDepartmentById: async (req: Request, res: Response, next: NextFunction) => {

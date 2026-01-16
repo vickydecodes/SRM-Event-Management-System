@@ -12,7 +12,6 @@ app.get('/', (req: Request, res: Response) => {
   res.send('SRM Event Management API is running smoothly 🔐');
 });
 
-app.use(express.json());
 
 console.log('Setting up routes...');
 
@@ -21,10 +20,15 @@ console.log('Setting up routes...');
     console.log('Connecting to DB...');
     await connectDB(ENV.MONGO_URI);
 
+        applySecurityMiddlewares(app);
+
+
     console.log('Loading routes...');
     await loadRoutes(app);
 
     app.use(unallocatedRouteMiddleware)
+
+    app.use(errorHandler);
 
     console.group(`
         ============================================================
