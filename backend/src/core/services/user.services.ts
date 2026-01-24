@@ -8,13 +8,14 @@ const UserFilterConfig = {
 } satisfies FilterConfig<IUser>;
 
 export const create = async (data: any) => {
-  const user = await new User(data).save();
+  const user = await new User({...data, password: "srm123"}).save();
   return user;
 };
 
 export const getAll = async (queries: Record<string, any>, role?: string) => {
-  const users = await User.find({});
-  return users;
+  return dynamicFilter(User, UserFilterConfig, queries, {
+    visibility: role === 'admin' ? 'all' : 'active-only'
+  });
 };
 
 export const getById = async (id: string) => {

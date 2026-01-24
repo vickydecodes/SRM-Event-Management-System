@@ -13,11 +13,12 @@ import {
 
 import AdminDashboard from '@/pages/dashboards/admin-dashboard';
 import Departments from '@/pages/admin/departments/departments';
-import HODManagement from '@/pages/admin/hod/hod';
+import HODManagement from '@/pages/admin/staff/hod';
 import Students from '@/pages/admin/students/students';
 import Halls from '@/pages/admin/halls/halls';
 import ApprovalRequests from '@/pages/admin/approvals/approval-requests';
 import SettingsPage from '@/pages/admin/settings/settings';
+import Courses from '@/pages/admin/courses/courses';
 // import ProfilePage from "@/modules/common/user-profile/user-profile"
 // import ChangePasswordPage from "@/modules/common/change-password/changepassword"
 
@@ -43,6 +44,18 @@ export const adminRoutes = {
       path: '/admin/departments',
       element: <Departments />,
       module: 'department',
+      action: 'view',
+    },
+
+    
+    {
+      label: 'Courses',
+      title: 'Course Management',
+      description: 'Create and manage academic courses.',
+      icon: <IconBuildingCommunity className="h-5 w-5 shrink-0" />,
+      path: '/admin/courses',
+      element: <Courses />,
+      module: 'course',
       action: 'view',
     },
 

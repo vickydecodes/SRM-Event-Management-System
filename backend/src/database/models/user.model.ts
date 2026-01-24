@@ -13,7 +13,7 @@ const UserSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String },
     role: {
       type: String,
       enum: ['admin', 'staff'],
@@ -29,7 +29,7 @@ const UserSchema = new Schema<IUser>(
 
 UserSchema.pre("validate", async function (next) {
   if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 15);
+    this.password = await bcrypt.hash(this.password, 10);
   }
   next();
 });

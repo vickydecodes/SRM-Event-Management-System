@@ -17,7 +17,7 @@ const controllers = {
 
   getAllUsers: async (req: Request, res: Response) => {
     const users = await service.getAll(req.query);
-    return sendResponse.fetched(res, 'User', users);
+    return sendResponse.paginated(res, 'User', users);
   },
 
   getUserById: async (req: Request, res: Response) => {

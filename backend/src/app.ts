@@ -4,14 +4,13 @@ import connectDB from '@config/db.config.js';
 import { loadRoutes } from '@utils/routeLoader.js';
 import errorHandler from '@core/errors/error.handler.js';
 import { applySecurityMiddlewares } from '@config/security.config.js';
-import { unallocatedRouteMiddleware } from '@core/middlewares/unallocated.middleware.ts';
+// import { unallocatedRouteMiddleware } from '@core/middlewares/unallocated.middleware.ts';
 
 const app: Express = express();
 
 app.get('/', (req: Request, res: Response) => {
   res.send('SRM Event Management API is running smoothly 🔐');
 });
-
 
 console.log('Setting up routes...');
 
@@ -20,13 +19,10 @@ console.log('Setting up routes...');
     console.log('Connecting to DB...');
     await connectDB(ENV.MONGO_URI);
 
-        applySecurityMiddlewares(app);
-
+    applySecurityMiddlewares(app);
 
     console.log('Loading routes...');
     await loadRoutes(app);
-
-    app.use(unallocatedRouteMiddleware)
 
     app.use(errorHandler);
 

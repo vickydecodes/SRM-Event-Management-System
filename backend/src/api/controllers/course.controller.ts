@@ -17,7 +17,7 @@ const controllers = {
 
   getAllCourses: async (req: Request, res: Response) => {
     const courses = await service.getAll(req.query);
-    return sendResponse.fetched(res, 'Course', courses);
+    return sendResponse.paginated(res, 'Course', courses);
   },
 
   getCourseById: async (req: Request, res: Response) => {
